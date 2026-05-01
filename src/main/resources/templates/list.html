@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee List</title>
+</head>
+<body>
+
+<h2>Danh sách nhân viên</h2>
+
+<a href="/create">Thêm mới</a>
+
+<table border="1">
+    <tr>
+        <th>Tên</th>
+        <th>Tuổi</th>
+        <th>Phòng ban</th>
+        <th>Ảnh</th>
+    </tr>
+
+    <tr th:each="e : ${employees}">
+        <td th:text="${e.name}"></td>
+        <td th:text="${e.age}"></td>
+        <td th:text="${e.department.name}"></td>
+        <td>
+            <img th:if="${e.avatar != null}"
+                 th:src="@{'/uploads/' + ${e.avatar}}"
+                 width="80"/>
+
+            <span th:if="${e.avatar == null}">No Image</span>
+        </td>
+    </tr>
+
+</table>
+
+</body>
+</html>
