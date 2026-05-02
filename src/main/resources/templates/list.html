@@ -1,20 +1,28 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Employee List</title>
-</head>
-<body>
+<form th:action="@{/}" method="get">
+    <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm theo tên">
+    <button type="submit">Search</button>
+</form>
 
-<h2>Danh sách nhân viên</h2>
-
-<a href="/create">Thêm mới</a>
+<br>
 
 <table border="1">
     <tr>
-        <th>Tên</th>
-        <th>Tuổi</th>
+        <th>
+            <a th:href="@{/(page=0, sortField='name', sortDir=${reverseSortDir}, keyword=${keyword})}">
+                Tên
+            </a>
+        </th>
+        <th>
+            <a th:href="@{/(page=0, sortField='age', sortDir=${reverseSortDir}, keyword=${keyword})}">
+                Tuổi
+            </a>
+        </th>
         <th>Phòng ban</th>
         <th>Ảnh</th>
+    </tr>
+
+    <tr th:if="${employees.size() == 0}">
+        <td colspan="4">Không tìm thấy nhân viên nào</td>
     </tr>
 
     <tr th:each="e : ${employees}">
@@ -25,12 +33,28 @@
             <img th:if="${e.avatar != null}"
                  th:src="@{'/uploads/' + ${e.avatar}}"
                  width="80"/>
-
-            <span th:if="${e.avatar == null}">No Image</span>
         </td>
     </tr>
-
 </table>
 
-</body>
-</html>
+<br>
+
+<!-- PAGINATION -->
+<div>
+    <a th:if="${currentPage > 0}"
+       th:href="@{/(page=${currentPage - 1}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}">
+        Prev
+    </a>
+
+    <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:href="@{/(page=${i}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}"
+           th:style="${i == currentPage} ? 'font-weight:bold' : ''">
+            [[${i + 1}]]
+        </a>
+    </span>
+
+    <a th:if="${currentPage < totalPages - 1}"
+       th:href="@{/(page=${currentPage + 1}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}">
+        Next
+    </a>
+</div>
