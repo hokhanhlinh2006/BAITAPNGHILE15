@@ -3,8 +3,11 @@ package com.example.employeemanagement.controller;
 import com.example.employeemanagement.entity.Employee;
 import com.example.employeemanagement.repository.DepartmentRepository;
 import com.example.employeemanagement.repository.EmployeeRepository;
+import com.example.employeemanagement.specification.EmployeeSpecification;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +35,11 @@ public class EmployeeController {
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "name") String sortField,
             @RequestParam(defaultValue = "asc") String sortDir,
-            @RequestParam(required = false) String keyword
+
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Integer minAge,
+            @RequestParam(required = false) Integer maxAge
     ) {
 
         Sort sort = sortDir.equals("asc") ?
@@ -41,16 +48,12 @@ public class EmployeeController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Employee> employeePage;
+        Specification<Employee> spec = EmployeeSpecification.filter(
+                keyword, departmentId, minAge, maxAge
+        );
 
-        if (keyword != null && !keyword.isEmpty()) {
-            employeePage = employeeRepository
-                    .findByNameContainingIgnoreCase(keyword, pageable);
-        } else {
-            employeePage = employeeRepository.findAll(pageable);
-        }
+        Page<Employee> employeePage = employeeRepository.findAll(spec, pageable);
 
-        // DATA
         model.addAttribute("employees", employeePage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", employeePage.getTotalPages());
@@ -61,6 +64,11 @@ public class EmployeeController {
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
 
         model.addAttribute("keyword", keyword);
+        model.addAttribute("departmentId", departmentId);
+        model.addAttribute("minAge", minAge);
+        model.addAttribute("maxAge", maxAge);
+
+        model.addAttribute("departments", departmentRepository.findAll());
 
         return "list";
     }
